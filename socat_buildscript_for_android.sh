@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # Customize these parameters according to your environment
-ANDROID_NDK="${HOME}/bin/android-ndk-r6b"
+ANDROID_NDK="/opt/android-ndk-r10e"
+ANDROID_ARCH="arm"
 
 # Check for parameters
 if [ ! -d "${ANDROID_NDK}" ]; then
@@ -16,10 +17,11 @@ if [ ! -e "${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh" ]; then
 fi
 
 # Extract the Android toolchain from NDK
-ANDROID_PLATFORM="android-3"
+ANDROID_PLATFORM="android-16"
 ROOT="`pwd`"
 OUT="${ROOT}/out"
 ${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh \
+ --arch="${ANDROID_ARCH}" \
  --ndk-dir="${ANDROID_NDK}" \
  --platform="${ANDROID_PLATFORM}" \
  --install-dir="${OUT}/toolchain" \
@@ -36,8 +38,7 @@ cd ${OUT}
 ${ROOT}/configure \
  --host \
  --disable-openssl \
- --disable-unix \
- CC="${OUT}/toolchain/bin/arm-linux-androideabi-gcc" \
+ CC="${OUT}/toolchain/bin/arm-linux-androideabi-gcc" CFLAGS="-fvisibility=default -fPIE" LDFLAGS="-rdynamic -fPIE -pie" \
  || exit 1
 
 # Replace misconfigured values in config.h and enable PTY functions
